@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Risk Predictor | AI Health Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏥 Diabetes Risk Predictor</h1>
+            <p class="subtitle">AI-powered health assessment tool using machine learning</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="card">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2>Enter Your Health Metrics</h2>
+                <form id="predictionForm">
+                    <div class="form-grid">
+                        <!-- Row 1 -->
+                        <div class="form-group">
+                            <label for="pregnancies">Pregnancies</label>
+                            <input 
+                                type="number" 
+                                id="pregnancies" 
+                                name="pregnancies" 
+                                min="0" 
+                                max="20" 
+                                step="1"
+                                placeholder="0-20"
+                                required
+                            >
+                            <small>Number of times pregnant</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="glucose">Glucose (mg/dL)</label>
+                            <input 
+                                type="number" 
+                                id="glucose" 
+                                name="glucose" 
+                                min="0" 
+                                max="200" 
+                                step="1"
+                                placeholder="0-200"
+                                required
+                            >
+                            <small>Plasma glucose concentration</small>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div class="form-group">
+                            <label for="blood_pressure">Blood Pressure (mm Hg)</label>
+                            <input 
+                                type="number" 
+                                id="blood_pressure" 
+                                name="blood_pressure" 
+                                min="0" 
+                                max="150" 
+                                step="1"
+                                placeholder="0-150"
+                                required
+                            >
+                            <small>Diastolic blood pressure</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="skin_thickness">Skin Thickness (mm)</label>
+                            <input 
+                                type="number" 
+                                id="skin_thickness" 
+                                name="skin_thickness" 
+                                min="0" 
+                                max="100" 
+                                step="1"
+                                placeholder="0-100"
+                                required
+                            >
+                            <small>Triceps skin fold thickness</small>
+                        </div>
+
+                        <!-- Row 3 -->
+                        <div class="form-group">
+                            <label for="insulin">Insulin (mu U/ml)</label>
+                            <input 
+                                type="number" 
+                                id="insulin" 
+                                name="insulin" 
+                                min="0" 
+                                max="900" 
+                                step="1"
+                                placeholder="0-900"
+                                required
+                            >
+                            <small>2-Hour serum insulin</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bmi">BMI (kg/m²)</label>
+                            <input 
+                                type="number" 
+                                id="bmi" 
+                                name="bmi" 
+                                min="10" 
+                                max="70" 
+                                step="0.1"
+                                placeholder="10-70"
+                                required
+                            >
+                            <small>Body mass index</small>
+                        </div>
+
+                        <!-- Row 4 -->
+                        <div class="form-group">
+                            <label for="diabetes_pedigree_function">Diabetes Pedigree Function</label>
+                            <input 
+                                type="number" 
+                                id="diabetes_pedigree_function" 
+                                name="diabetes_pedigree_function" 
+                                min="0" 
+                                max="2.5" 
+                                step="0.001"
+                                placeholder="0-2.5"
+                                required
+                            >
+                            <small>Family history factor</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="age">Age (years)</label>
+                            <input 
+                                type="number" 
+                                id="age" 
+                                name="age" 
+                                min="1" 
+                                max="120" 
+                                step="1"
+                                placeholder="1-120"
+                                required
+                            >
+                            <small>Your age in years</small>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit">
+                        <span id="buttonText">Get Prediction</span>
+                        <span id="loadingSpinner" class="spinner" style="display: none;">⏳</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <h2>Prediction Results</h2>
+                
+                <!-- Risk Level Card -->
+                <div class="result-card">
+                    <div class="risk-indicator">
+                        <div id="riskIcon" class="risk-icon"></div>
+                        <div class="risk-content">
+                            <p class="risk-label">Risk Level:</p>
+                            <p id="riskLevel" class="risk-status"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confidence Metrics -->
+                <div class="metrics-container">
+                    <div class="metric-box">
+                        <p class="metric-label">Confidence Score</p>
+                        <p id="confidenceScore" class="metric-value">0%</p>
+                    </div>
+                    <div class="metric-box">
+                        <p class="metric-label">Positive Probability</p>
+                        <p id="positiveProbability" class="metric-value">0%</p>
+                    </div>
+                    <div class="metric-box">
+                        <p class="metric-label">Negative Probability</p>
+                        <p id="negativeProbability" class="metric-value">0%</p>
+                    </div>
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="disclaimer">
+                    <p><strong>⚠️ Disclaimer:</strong> This tool is for educational purposes only. It should not replace professional medical advice. 
+                    Please consult a healthcare provider for accurate diagnosis and treatment.</p>
+                </div>
+
+                <!-- New Prediction Button -->
+                <button type="button" class="btn-secondary" onclick="resetForm()">
+                    Try Another Prediction
+                </button>
+            </div>
+
+            <!-- Error Section -->
+            <div id="errorSection" class="error-section" style="display: none;">
+                <h3>❌ Error</h3>
+                <p id="errorMessage"></p>
+                <button type="button" class="btn-secondary" onclick="clearError()">
+                    Close
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>💡 Diabetes Prediction Model | Built with Python, Flask & Machine Learning</p>
+            <p>GitHub: <a href="https://github.com/ssz2605/Diabetes-Prediction-Model" target="_blank">ssz2605/Diabetes-Prediction-Model</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await makePrediction();
+        });
+
+        async function makePrediction() {
+            // Show loading state
+            const buttonText = document.getElementById('buttonText');
+            const spinner = document.getElementById('loadingSpinner');
+            buttonText.style.display = 'none';
+            spinner.style.display = 'inline-block';
+
+            try {
+                // Collect form data
+                const formData = {
+                    pregnancies: parseFloat(document.getElementById('pregnancies').value),
+                    glucose: parseFloat(document.getElementById('glucose').value),
+                    blood_pressure: parseFloat(document.getElementById('blood_pressure').value),
+                    skin_thickness: parseFloat(document.getElementById('skin_thickness').value),
+                    insulin: parseFloat(document.getElementById('insulin').value),
+                    bmi: parseFloat(document.getElementById('bmi').value),
+                    diabetes_pedigree_function: parseFloat(document.getElementById('diabetes_pedigree_function').value),
+                    age: parseFloat(document.getElementById('age').value)
+                };
+
+                // Send prediction request
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    showError(result.error || 'Prediction failed');
+                    return;
+                }
+
+                // Display results
+                displayResults(result);
+
+            } catch (error) {
+                showError('An error occurred: ' + error.message);
+            } finally {
+                // Reset button state
+                buttonText.style.display = 'inline-block';
+                spinner.style.display = 'none';
+            }
+        }
+
+        function displayResults(result) {
+            // Hide form and error sections
+            document.getElementById('predictionForm').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'none';
+
+            // Update results
+            const riskLevel = result.prediction === 1 ? 'HIGH RISK' : 'LOW RISK';
+            const riskColor = result.prediction === 1 ? '#e74c3c' : '#27ae60';
+
+            document.getElementById('riskLevel').textContent = riskLevel;
+            document.getElementById('riskLevel').style.color = riskColor;
+            
+            const riskIcon = document.getElementById('riskIcon');
+            riskIcon.textContent = result.prediction === 1 ? '⚠️' : '✅';
+            riskIcon.style.color = riskColor;
+
+            document.getElementById('confidenceScore').textContent = result.confidence.toFixed(1) + '%';
+            document.getElementById('positiveProbability').textContent = result.positive_probability.toFixed(1) + '%';
+            document.getElementById('negativeProbability').textContent = result.negative_probability.toFixed(1) + '%';
+
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('predictionForm').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        function clearError() {
+            document.getElementById('errorSection').style.display = 'none';
+            document.getElementById('predictionForm').style.display = 'block';
+        }
+
+        function resetForm() {
+            document.getElementById('predictionForm').reset();
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('predictionForm').style.display = 'block';
+            document.getElementById('errorSection').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
